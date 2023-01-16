@@ -133,3 +133,72 @@ grep -v 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf > genomes/coatneyi/pcoa
 sbatch/extract_pcyno_reads.sbatch
 sbatch/extract_pcoat_reads.sbatch
 ```
+
+
+
+
+
+
+
+
+
+
+
+
+
+8. Obtain Read Count Matrix and Calculate Percent Parasitemia
+> Necessary module(s): r/intel/4.0.4
+> Necessary R package(s): BiocManager, Rsubread
+```bash
+module load r/intel/4.0.4
+R
+```
+ * _P. cynomolgi_ and _M. mulatta_
+
+```R
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+bams = list.files(path = "results/mapped_reads/colobus", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/combined.gtf"
+colobus.fc = featureCounts(bams, annot.ext=gtf.file,
+    GTF.featureType="gene",
+    isGTFAnnotationFile=TRUE,
+    isPairedEnd=FALSE,
+    nthreads=8,
+    allowMultiOverlap=FALSE)
+
+save.image("colobus.fc.Rdata")
+```
+  * As file is running, create percent_parasitemia table in excel (enter Colobus_Reads_Mapped):
+ > Colobus_Reads_Mapped = "Successfully assigned alignments"
+ 
+  * Do same for "unique" pathogen data 
+```R
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+bams = list.files(path = "edgeR_results/mapped_reads/hepatocystis", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/combined.gtf"
+hepato.fc = featureCounts(bams, annot.ext=gtf.file,
+    GTF.featureType="gene",
+    isGTFAnnotationFile=TRUE,
+    isPairedEnd=FALSE,
+    nthreads=8,
+    allowMultiOverlap=FALSE)
+
+save.image("hepato.fc.Rdata")
+```
+  * As file is running, create percent_parasitemia table in excel (enter Hepatocystis_Reads_Mapped):
+ > Plasmodium_Reads_Mapped = "Successfully assigned alignments"
+ 
+  * Calculate Total_Reads:
+ > Total_Reads = sum(Colobus_Reads_Mapped, Hepatocystis_Reads_Mapped)
+  * Calculate Percent Parasitemia:
+ > Percent Parasitemia = Hepatocystis_Reads_Mapped / Total_Reads
