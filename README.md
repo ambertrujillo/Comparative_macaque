@@ -243,7 +243,7 @@ MmulCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
     nthreads=8,
     allowMultiOverlap=TRUE)
 
-save.image("exon/Mmul_exonfc.Rdata")
+save.image("MmulCoat_exonfc.Rdata")
 ```
   * As file is running, create percent_parasitemia table in excel (enter Macaque_Reads_Mapped):
  > Macaque_Reads_Mapped = "Successfully assigned alignments"
@@ -265,7 +265,7 @@ PlasCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
     nthreads=8,
     allowMultiOverlap=TRUE)
 
-save.image("exon/PlasCoat_exonfc.Rdata")
+save.image("PlasCoat_exonfc.Rdata")
 ```
   * As file is running, create percent_parasitemia table in excel (enter Plasmodium_Reads_Mapped):
  > Plasmodium_Reads_Mapped = "Successfully assigned alignments"
