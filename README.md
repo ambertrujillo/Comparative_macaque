@@ -66,3 +66,36 @@ sbatch/index_pcyno_genomes.sbatch
 # P. coatneyi and M. mulatta
 sbatch/index_pcoat_genomes.sbatch
 ```
+4. Download reads from each bioproject
+> Necessary module(s): edirect/20210122, sra-tools/2.10.9, parallel/20201022
+ * _P. cynomolgi_ and _M. mulatta_
+```bash
+esearch -db sra -query PRJNA388645 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
+						
+# prefetch
+sbatch sbatch/pcyno_prefetch.sbatch
+
+#fasqdump
+sbatch sbatch/pcyno_dump.sbatch
+```
+
+
+```bash
+esearch -db sra -query PRJNA400695 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
+	```				
+#parallel --jobs 8 "fastq-dump --split-files --origfmt --gzip {}" ::: SRR.numbers
+
+#run with pbs/prefetch.sbatch
+
+parallel --verbose -j 20 prefetch --output-directory $SCRATCH/macaque_malaria/data {} ::: $(grep -v Run SRR.numbers )
+wait 
+
+#run with pbs/dump.sbatch
+
+parallel --verbose -j 20 fastq-dump --split-files --outdir $SCRATCH/macaque_malaria/data {} ::: $(ls $SCRATCH/macaque_malaria/data/*.sra )
+wait 
+
+
+
+
+
