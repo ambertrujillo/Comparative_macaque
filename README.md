@@ -108,14 +108,14 @@ sbatch/trim_pcoat_reads.sbatch
 gunzip $SCRATCH/data/cynomolig/*TRIM_*.fastq.gz
 ```
 ```bash
-sbatch/edgeR_pcyno_align_genome.sbatch
+sbatch/align_pcyno_genome.sbatch
 ```
  * _P. coatneyi_ and _M. mulatta_
 ```bash
 gunzip $SCRATCH/data/coatneyi/*TRIM_*.fastq.gz
 ```
 ```bash
-sbatch/edgeR_pcoat_align_genome.sbatch
+sbatch/align_pcoat_genome.sbatch
 ```
 ```bash
 # Remove lines in gtf file with empty gene_id field
