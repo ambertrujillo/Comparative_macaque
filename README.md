@@ -118,4 +118,13 @@ gunzip $SCRATCH/data/coatneyi/*TRIM_*.fastq.gz
 ```bash
 sbatch/edgeR_pcoat_align_genome.sbatch
 ```
+```bash
+# Remove lines in gtf file with empty gene_id field
+# P. cynomolgi
+grep 'gene_id ""' genomes/cynomolgi/pcyno_combined.gtf # to look at them
+grep -v 'gene_id ""' genomes/cynomolgi/pcyno_combined.gtf > genomes/cynomolgi/pcyno_combined_FIXED.gtf
 
+# P. coatneyi
+grep 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf # to look at them
+grep -v 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf > genomes/coatneyi/pcoat_combined_FIXED.gtf
+```
