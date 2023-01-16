@@ -36,7 +36,7 @@ sed '
     s/^\NC_033568.1/Plaschr13/
     s/^\NC_033569.1/Plaschr14/g' GCF_001680005.1_ASM168000v1_genomic.gtf > GCF_001680005.1_ASM168000v1_genomic.fix.gtf
 
-mv GCF_001680005.1_ASM168000v1_genomic.fix.gtf plas.fix.gtf #rename gtf file
+mv GCF_001680005.1_ASM168000v1_genomic.fix.gtf pcoat.fix.gtf #rename gtf file
 
 cd ..
 
