@@ -28,11 +28,29 @@ scripts/download_pcoat.sh
 scripts/download_pcoat_annotations.sh
 ```
 2. Concatenate Host-Pathogen Reference Genomes and Annotation files
-  * _P.cynomoligi_ and _Macaca mulatta_
+  * _P. cynomolgi_ and _M. mulatta_
 ```bash
+mkdir genomes/cynomolgi
+cd genomes/cynomolgi
+
 # Reference Genomes
-cd genomes
-cat plas.fa Mmul.fa > combined.fa
-#Annotation files
-cat plas.fix.gtf Mmul.fix.gtf > combined.gtf
+cat pcyno.fa Mmul.fa > combined.fa
+
+# Annotation files
+cat pcyno.fix.gtf Mmul.fix.gtf > combined.gtf
+
+cd ..
 ```
+ * _P. coatneyi_ and _M. mulatta_
+ ```bash
+ mkdir coatneyi
+ cd coatneyi
+ 
+ # Reference Genomes
+ cat pcoat.fa Mmul.fa > combined.fa
+ 
+ # Annotation files
+ cat pcoat.fix.gtf Mmul.fix.gtf > combined.gtf
+ 
+ cd ..
+ ```
