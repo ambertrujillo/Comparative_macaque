@@ -74,31 +74,24 @@ mkdir data/coatneyi
 ```
  * _P. cynomolgi_ and _M. mulatta_
 ```bash
-esearch -db sra -query PRJNA388645 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
+esearch -db sra -query PRJNA388645 | efetch -format runinfo | cut -d "," -f 1 > pcyno_SRR.numbers
 						
 # prefetch
 sbatch sbatch/prefetch_pcyno.sbatch
 
-#fasqdump
+# fasqdump
 sbatch sbatch/dump_pcyno.sbatch
 ```
-
-
+ * _P. coatneyi_ and _M. mulatta_
 ```bash
-esearch -db sra -query PRJNA400695 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
+esearch -db sra -query PRJNA400695 | efetch -format runinfo | cut -d "," -f 1 > pcoat_SRR.numbers
 	```				
-#parallel --jobs 8 "fastq-dump --split-files --origfmt --gzip {}" ::: SRR.numbers
+# prefetch
+sbatch sbatch/prefetch_pcoat.sbatch
 
-#run with pbs/prefetch.sbatch
-
-parallel --verbose -j 20 prefetch --output-directory $SCRATCH/macaque_malaria/data {} ::: $(grep -v Run SRR.numbers )
-wait 
-
-#run with pbs/dump.sbatch
-
-parallel --verbose -j 20 fastq-dump --split-files --outdir $SCRATCH/macaque_malaria/data {} ::: $(ls $SCRATCH/macaque_malaria/data/*.sra )
-wait 
-
+# fastqdump
+sbatch sbatch/dump_pcoat.sbatch
+```
 
 
 
