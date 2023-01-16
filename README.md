@@ -34,10 +34,10 @@ mkdir genomes/cynomolgi
 cd genomes/cynomolgi
 
 # Reference Genomes
-cat pcyno.fa Mmul.fa > combined.fa
+cat pcyno.fa Mmul.fa > pcyno_combined.fa
 
 # Annotation files
-cat pcyno.fix.gtf Mmul.fix.gtf > combined.gtf
+cat pcyno.fix.gtf Mmul.fix.gtf > pcyno_combined.gtf
 
 cd ..
 ```
@@ -47,10 +47,10 @@ cd ..
  cd coatneyi
  
  # Reference Genomes
- cat pcoat.fa Mmul.fa > combined.fa
+ cat pcoat.fa Mmul.fa > pcoat_combined.fa
  
  # Annotation files
- cat pcoat.fix.gtf Mmul.fix.gtf > combined.gtf
+ cat pcoat.fix.gtf Mmul.fix.gtf > pcoat_combined.gtf
  
  cd ..
  ```
