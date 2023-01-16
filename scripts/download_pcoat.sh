@@ -4,7 +4,6 @@
 
 module load kent/385
 
-mkdir -p genomes/
 cd genomes/
 
 GENOME_FA=plas.fa
