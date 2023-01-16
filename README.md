@@ -1,2 +1,29 @@
 # Comparative_macaque
-Pipeline for the comparative analysis of two macaque populations infected with different species of malaria
+
+
+# Pipeline
+## Prepare Reference Genome and Macaque Reads for Analysis
+
+1. Download Reference Genomes and Annotation files (Host and each pathogen)
+> Necessary module(s): kent/385
+  * _Macaca mulatta_
+```bash
+scripts/download_Mmul.sh
+```
+```bash
+scripts/download_Mmul_annotations.sh
+```
+  * _Plasmodium cynomolgi_
+```bash
+scripts/download_pcyno.sh
+```
+```bash
+scripts/download_pcyno_annotations.sh
+```
+  *_Plasmodium coatneyi_
+```bash
+scripts/download_pcoat.sh
+```
+```bash
+scripts/download_pcoat_annotations.sh
+```
