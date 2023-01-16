@@ -133,19 +133,6 @@ grep -v 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf > genomes/coatneyi/pcoa
 sbatch/extract_pcyno_reads.sbatch
 sbatch/extract_pcoat_reads.sbatch
 ```
-
-
-
-
-
-
-
-
-
-
-
-
-
 8. Obtain Read Count Matrix and Calculate Percent Parasitemia
 > Necessary module(s): r/intel/4.0.4
 > Necessary R package(s): BiocManager, Rsubread
@@ -275,3 +262,118 @@ save.image("PlasCoat_exonfc.Rdata")
   * Calculate Percent Parasitemia:
  > Percent Parasitemia = Plasmodium_Reads_Mapped / Total_Reads
 ```
+9. Combine read count matrices for analyses
+### --> Combine macaque .Rdata files
+load("Mmul_exonfc.Rdata")
+Mmul_coatneyi = Mmul_exonfc$counts
+load("PlasCoat_exonfc.Rdata")
+Plas_coatneyi = PlasCoat_exonfc$counts
+
+load("MmulCyno_exonfc.Rdata")
+Mmul_cyno = MmulCyno_exonfc$counts 
+load("PlasCyno_exonfc.Rdata")
+Plas_cyno = PlasCyno_exonfc$counts
+
+### --> Calculate parasitemia proxies
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+#Coatneyi
+#Load info about individuals
+coatneyi_info = read.csv("macaca_coatneyi/Proportions_parasitemia.csv")
+coatneyi_info <- coatneyi_info[ -c(4,11,13,17,19) ] # Getting rid of uncessary info
+
+#Make read count dataframe
+Mmul_coatneyi = data.frame(t(Mmul_coatneyi))
+rownames(Mmul_coatneyi) <- coatneyi_info$Individual_SRR
+Plas_coatneyi = data.frame(t(Plas_coatneyi))
+rownames(Plas_coatneyi) <- coatneyi_info$Individual_SRR
+
+#Remove or keep PCOAH (plasmodium) columns in macaque mapping
+Mmul_coatneyi = Mmul_coatneyi[,!grepl("^PCOAH_",names(Mmul_coatneyi))]
+Plas_coatneyi = Plas_coatneyi[,grepl("^PCOAH_",names(Plas_coatneyi))]
+
+#Sum rows
+Mmul_coatneyi_readsMapped = data.frame(rowSums(Mmul_coatneyi))
+names(Mmul_coatneyi_readsMapped)[1] = "Macaque_reads"
+Plas_coatneyi_readsMapped = data.frame(rowSums(Plas_coatneyi))
+names(Plas_coatneyi_readsMapped)[1] = "Plasmodium_reads"
+#Include the measure of parasites/ul on day of RNA collection and Rsubread proxy (gene and exon for comparison)
+Plas_coatneyi_readsMapped$Individual_ID = coatneyi_info$Individual_ID
+Plas_coatneyi_readsMapped$Time_point = coatneyi_info$Time_point
+Plas_coatneyi_readsMapped$Parasites_ul_actual_o = coatneyi_info$Parasites_ul_actual_o
+Plas_coatneyi_readsMapped$Parasites_ul_actual_b_o_a = coatneyi_info$Parasites_ul_actual_b_o_a
+Plas_coatneyi_readsMapped$Parasites_ul_actual_b_o = coatneyi_info$Parasites_ul_actual_b_o
+Plas_coatneyi_readsMapped$Parasites_ul_actual_2b_b_o = coatneyi_info$Parasites_ul_actual_2b_b_o
+Plas_coatneyi_readsMapped$Percent_Parasitemia_gene = coatneyi_info$Percent_Parasitemia_gene
+Plas_coatneyi_readsMapped$Percent_Parasitemia_exon = coatneyi_info$Percent_Parasitemia_exon
+Plas_coatneyi_readsMapped$Plas_species = "coatneyi"
+
+coatneyi_reads = merge(Mmul_coatneyi_readsMapped, Plas_coatneyi_readsMapped, by="row.names")
+rownames(coatneyi_reads) = coatneyi_reads$Row.names
+coatneyi_reads = coatneyi_reads[-c(1)]
+
+#Cynomolgi
+#Load info about individuals
+cynomolgi_info = read.csv("macaca_cynomolgi/parasitemia_proxy.csv")
+cynomolgi_info <- cynomolgi_info[ -c(10,12,16,18) ] # getting rid of unnecessary info
+
+#Make read count data frame
+Mmul_cyno = data.frame(t(Mmul_cyno))
+rownames(Mmul_cyno) <- cynomolgi_info$Individual_SRR
+Plas_cyno = data.frame(t(Plas_cyno))
+rownames(Plas_cyno) <- cynomolgi_info$Individual_SRR
+
+#Remove or keep PCOAH (plasmodium) columns in macaque mapping
+Mmul_cyno = Mmul_cyno[,!grepl("^PCYB_",names(Mmul_cyno))]
+Plas_cyno = Plas_cyno[,grepl("^PCYB_",names(Plas_cyno))]
+
+#Sum rows
+Mmul_cyno_readsMapped = data.frame(rowSums(Mmul_cyno))
+names(Mmul_cyno_readsMapped)[1] = "Macaque_reads"
+Plas_cyno_readsMapped = data.frame(rowSums(Plas_cyno))
+names(Plas_cyno_readsMapped)[1] = "Plasmodium_reads"
+
+# Include other measures of parasite load
+Plas_cyno_readsMapped$Individual_ID = cynomolgi_info$Individual_ID
+Plas_cyno_readsMapped$Time_point = cynomolgi_info$Time_point
+Plas_cyno_readsMapped$Parasites_ul_actual_o = cynomolgi_info$Parasites_ul_actual_o
+Plas_cyno_readsMapped$Parasites_ul_actual_b_o_a = cynomolgi_info$Parasites_ul_actual_b_o_a
+Plas_cyno_readsMapped$Parasites_ul_actual_b_o = cynomolgi_info$Parasites_ul_actual_b_o
+Plas_cyno_readsMapped$Parasites_ul_actual_2b_b_o = cynomolgi_info$Parasites_ul_actual_2b_b_o
+Plas_cyno_readsMapped$Percent_Parasitemia_gene = cynomolgi_info$Percent_Parasitemia_gene
+Plas_cyno_readsMapped$Percent_Parasitemia_exon = cynomolgi_info$Percent_Parasitemia_exon
+Plas_cyno_readsMapped$Plas_species = "cynomolgi"
+
+cynomolgi_reads = merge(Mmul_cyno_readsMapped, Plas_cyno_readsMapped, by="row.names")
+rownames(cynomolgi_reads) = cynomolgi_reads$Row.names
+cynomolgi_reads = cynomolgi_reads[-c(1)]
+
+# Combine both parasitemia tables
+parasitemia = rbind(coatneyi_reads, cynomolgi_reads)
+# Calculate parasitemia
+parasitemia$parasitemia_proxy = parasitemia$Plasmodium_reads / parasitemia$Macaque_reads
+parasitemia$SRRs = rownames(parasitemia)
+
+# For model 1
+parasitemia_outler = parasitemia[!(parasitemia$Individual_ID %in% c("CF97_donor")), ] # Only dropped transfusion sample
+
+# For model 2
+parasitemia_NOoutlier = parasitemia[!(parasitemia$Individual_ID %in% c("RFa14", "RMe14", "CF97_donor")), ]
+
+save.image(file="exon/Parasitemia_calculation.Rdata")
+
