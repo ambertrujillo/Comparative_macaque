@@ -77,10 +77,10 @@ mkdir data/coatneyi
 esearch -db sra -query PRJNA388645 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
 						
 # prefetch
-sbatch sbatch/pcyno_prefetch.sbatch
+sbatch sbatch/prefetch_pcyno.sbatch
 
 #fasqdump
-sbatch sbatch/pcyno_dump.sbatch
+sbatch sbatch/dump_pcyno.sbatch
 ```
 
 
