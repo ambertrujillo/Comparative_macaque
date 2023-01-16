@@ -21,15 +21,13 @@ cd $working_dir
 
 module load gcc/10.2.0 star/intel/2.7.6a
 
-mkdir -p genomes/index
+mkdir -p genomes/cynomolgi/index
 
 STAR --runThreadN 2 \
 --runMode genomeGenerate \
---genomeDir genomes/index \
---genomeFastaFiles genomes/combined.fa \
---sjdbGTFfile genomes/combined.gtf \
+--genomeDir genomes/cynomolgi/index \
+--genomeFastaFiles genomes/cynomolgi/pcyno_combined.fa \
+--sjdbGTFfile genomes/cynomolgi/pcyno_combined.gtf \
 --sjdbOverhang 99 \
---outFileNamePrefix genomes/index/combinedindex \
+--outFileNamePrefix genomes/cynomolgi/index/combinedindex \
 --limitGenomeGenerateRAM=40712737493
-
-cd ..
