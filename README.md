@@ -366,8 +366,8 @@ save.image(file="exon/Parasitemia_calculation.Rdata")
 # load orthologs
 require(data.table)
 
-orthologs.coat = read.csv("orthologs_starting_with_coat.csv") #4465
-orthologs.cyno = read.csv("orthologs_starting_with_cyno.csv") #4509
+orthologs.coat = read.csv("orthologs/orthologs_starting_with_coat.csv") #4465
+orthologs.cyno = read.csv("orthologs/orthologs_starting_with_cyno.csv") #4509
 
 # Get rid of all rows that do not have 1 to 1 ortholog
 coat.1ortho = orthologs.coat[unlist(lapply(orthologs.coat$Input.Ortholog.s., nchar)) == 14,] #3927
