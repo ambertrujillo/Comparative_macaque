@@ -92,7 +92,15 @@ sbatch sbatch/prefetch_pcoat.sbatch
 # fastqdump
 sbatch sbatch/dump_pcoat.sbatch
 ```
+5. Trim _Macaque_ reads (ARRAY JOB)
+> Necessary module(s): trimmomatic/0.36
 
+> To submit an sbatch array job: `sbatch --array=1-[number of individuals] sbatch/name_of_job.sbatch`
+
+```bash
+sbatch/trim_pcyno_reads.sbatch
+sbatch/trim_pcoat_reads.sbatch
+```
 
 
 
