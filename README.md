@@ -20,10 +20,19 @@ scripts/download_pcyno.sh
 ```bash
 scripts/download_pcyno_annotations.sh
 ```
-  *_Plasmodium coatneyi_
+  * _Plasmodium coatneyi_
 ```bash
 scripts/download_pcoat.sh
 ```
 ```bash
 scripts/download_pcoat_annotations.sh
+```
+2. Concatenate Host-Pathogen Reference Genomes and Annotation files
+  * _P.cynomoligi_ and _Macaca mulatta_
+```bash
+# Reference Genomes
+cd genomes
+cat plas.fa Mmul.fa > combined.fa
+#Annotation files
+cat plas.fix.gtf Mmul.fix.gtf > combined.gtf
 ```
