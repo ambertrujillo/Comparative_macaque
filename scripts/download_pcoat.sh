@@ -6,7 +6,7 @@ module load kent/385
 
 cd genomes/
 
-GENOME_FA=plas.fa
+GENOME_FA=pcoat.fa
 
 PLASMODIUM_URL=ftp://ftp.ncbi.nlm.nih.gov/genomes/all/GCF/001/680/005
 PLASMODIUM_URL=$PLASMODIUM_URL/GCF_001680005.1_ASM168000v1/GCF_001680005.1_ASM168000v1_genomic.fna.gz  
