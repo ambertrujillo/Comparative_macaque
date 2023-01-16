@@ -54,3 +54,15 @@ cd ..
  
  cd ..
  ```
+3. Index concatenated Reference Genome (SBATCH JOB)
+> Necessary module(s): gcc/10.2.0, star/intel/2.7.6a
+
+> To submit sbatch job: `sbatch sbatch/name_of_job.sbatch`
+
+```sbatch
+# P. cynomolgi and M. mulatta
+sbatch/index_pcyno_genomes.sbatch
+
+# P. coatneyi and M. mulatta
+sbatch/index_pcoat_genomes
+```
