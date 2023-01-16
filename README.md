@@ -68,6 +68,10 @@ sbatch/index_pcoat_genomes.sbatch
 ```
 4. Download reads from each bioproject
 > Necessary module(s): edirect/20210122, sra-tools/2.10.9, parallel/20201022
+```bash
+mkdir data/cynomolgi
+mkdir data/coatneyi
+```
  * _P. cynomolgi_ and _M. mulatta_
 ```bash
 esearch -db sra -query PRJNA388645 | efetch -format runinfo | cut -d "," -f 1 > SRR.numbers
