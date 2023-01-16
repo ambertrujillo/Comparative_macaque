@@ -111,5 +111,11 @@ gunzip $SCRATCH/data/cynomolig/*TRIM_*.fastq.gz
 ```bash
 sbatch/edgeR_pcyno_align_genome.sbatch
 ```
-
+ * _P. coatneyi_ and _M. mulatta_
+```bash
+gunzip $SCRATCH/data/coatneyi/*TRIM_*.fastq.gz
+```
+```bash
+sbatch/edgeR_pcoat_align_genome.sbatch
+```
 
