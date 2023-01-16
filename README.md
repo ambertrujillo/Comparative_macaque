@@ -84,8 +84,8 @@ sbatch sbatch/dump_pcyno.sbatch
 ```
  * _P. coatneyi_ and _M. mulatta_
 ```bash
-esearch -db sra -query PRJNA400695 | efetch -format runinfo | cut -d "," -f 1 > pcoat_SRR.numbers
-	```				
+esearch -db sra -query PRJNA400695 | efetch -format runinfo | cut -d "," -f 1 > pcoat_SRR.number
+
 # prefetch
 sbatch sbatch/prefetch_pcoat.sbatch
 
