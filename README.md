@@ -101,8 +101,7 @@ sbatch sbatch/dump_pcoat.sbatch
 sbatch/trim_pcyno_reads.sbatch
 sbatch/trim_pcoat_reads.sbatch
 ```
-## 5a. EdgeR pipeline
-### Align Macaque reads to concatenated Host-Pathogen Referance sequence (ARRAY JOB)
+6. Align Macaque reads to concatenated Host-Pathogen Referance sequence (ARRAY JOB)
 > Necessary module(s): gcc/10.2.0 star/intel/2.7.6a
  * _P. cynomolgi_ and _M. mulatta_
 ```bash
