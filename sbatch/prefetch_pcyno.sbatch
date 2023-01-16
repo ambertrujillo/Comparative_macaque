@@ -15,7 +15,7 @@ module load parallel/20201022
   
 cd $SLURM_SUBMIT_DIR
 
-parallel --verbose -j 20 prefetch --output-directory $SCRATCH/data/cynomolgi {} ::: $(grep -v Run SRR.numbers )
+parallel --verbose -j 20 prefetch --output-directory $SCRATCH/data/cynomolgi {} ::: $(grep -v Run pcyno_SRR.numbers )
 wait 
 
 exit 
