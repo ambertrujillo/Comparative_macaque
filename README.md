@@ -294,7 +294,7 @@ Plas_cyno = PlasCyno_exonfc$counts
 
 #Coatneyi
 #Load info about individuals
-coatneyi_info = read.csv("macaca_coatneyi/Proportions_parasitemia.csv")
+coatneyi_info = read.csv("parasitemias/Pcoat_proportions_parasitemia.csv")
 coatneyi_info <- coatneyi_info[ -c(4,11,13,17,19) ] # Getting rid of uncessary info
 
 #Make read count dataframe
