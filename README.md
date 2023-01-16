@@ -213,7 +213,7 @@ save.image("PlasCyno_exonfc.Rdata")```
  > Total_Reads = sum(Macaque_Reads_Mapped, Plasmodium_Reads_Mapped)
   * Calculate Percent Parasitemia:
  > Percent Parasitemia = Hepatocystis_Reads_Mapped / Total_Reads
- 
+ ```
   * _P. coatneyi_ and _M. mulatta_
 
 ```R
