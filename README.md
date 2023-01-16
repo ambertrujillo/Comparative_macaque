@@ -276,22 +276,6 @@ Plas_cyno = PlasCyno_exonfc$counts
 
 ### --> Calculate parasitemia proxies
 
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 #Coatneyi
 #Load info about individuals
 coatneyi_info = read.csv("parasitemias/Pcoat_proportions_parasitemia.csv")
@@ -329,7 +313,7 @@ coatneyi_reads = coatneyi_reads[-c(1)]
 
 #Cynomolgi
 #Load info about individuals
-cynomolgi_info = read.csv("macaca_cynomolgi/parasitemia_proxy.csv")
+cynomolgi_info = read.csv("parasitemias/Pcyno_proportions_parasitemia.csv")
 cynomolgi_info <- cynomolgi_info[ -c(10,12,16,18) ] # getting rid of unnecessary info
 
 #Make read count data frame
@@ -376,4 +360,4 @@ parasitemia_outler = parasitemia[!(parasitemia$Individual_ID %in% c("CF97_donor"
 parasitemia_NOoutlier = parasitemia[!(parasitemia$Individual_ID %in% c("RFa14", "RMe14", "CF97_donor")), ]
 
 save.image(file="exon/Parasitemia_calculation.Rdata")
-
+```
