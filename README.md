@@ -127,3 +127,9 @@ grep -v 'gene_id ""' genomes/cynomolgi/pcyno_combined.gtf > genomes/cynomolgi/pc
 grep 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf # to look at them
 grep -v 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf > genomes/coatneyi/pcoat_combined_FIXED.gtf
 ```
+7. Obtain "Unique" Host and Pathogen Data (ARRAY JOB)
+> Necessary module(s): bamtools/intel/2.5.1, samtools/intel/1.11
+```bash
+sbatch/extract_pcyno_reads.sbatch
+sbatch/extract_pcoat_reads.sbatch
+```
