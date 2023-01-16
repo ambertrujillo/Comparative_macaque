@@ -8,6 +8,7 @@
 
 
 cd genomes/ 
+
 CYNOMOLGI_URL=ftp.ncbi.nlm.nih.gov/genomes/refseq/protozoa/Plasmodium_cynomolgi/latest_assembly_versions/
 
 ANNO1=GCF_000321355.1_PcynB_1.0/GCF_000321355.1_PcynB_1.0_genomic.gtf
