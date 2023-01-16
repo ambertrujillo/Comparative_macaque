@@ -66,7 +66,8 @@ sbatch/index_pcyno_genomes.sbatch
 # P. coatneyi and M. mulatta
 sbatch/index_pcoat_genomes.sbatch
 ```
-4. Download reads from each bioproject
+## Prepare reads from each bioproject for analysis
+1. Download reads from NCBI
 > Necessary module(s): edirect/20210122, sra-tools/2.10.9, parallel/20201022
 ```bash
 mkdir data/cynomolgi
@@ -92,7 +93,7 @@ sbatch sbatch/prefetch_pcoat.sbatch
 # fastqdump
 sbatch sbatch/dump_pcoat.sbatch
 ```
-5. Trim _Macaque_ reads (ARRAY JOB)
+2. Trim _Macaque_ reads (ARRAY JOB)
 > Necessary module(s): trimmomatic/0.36
 
 > To submit an sbatch array job: `sbatch --array=1-[number of individuals] sbatch/name_of_job.sbatch`
@@ -101,7 +102,7 @@ sbatch sbatch/dump_pcoat.sbatch
 sbatch/trim_pcyno_reads.sbatch
 sbatch/trim_pcoat_reads.sbatch
 ```
-6. Align Macaque reads to concatenated Host-Pathogen Referance sequence (ARRAY JOB)
+## Align Macaque reads to concatenated Host-Pathogen Referance sequence (ARRAY JOB)
 > Necessary module(s): gcc/10.2.0 star/intel/2.7.6a
  * _P. cynomolgi_ and _M. mulatta_
 ```bash
@@ -127,13 +128,13 @@ grep -v 'gene_id ""' genomes/cynomolgi/pcyno_combined.gtf > genomes/cynomolgi/pc
 grep 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf # to look at them
 grep -v 'gene_id ""' genomes/coatneyi/pcoat_combined.gtf > genomes/coatneyi/pcoat_combined_FIXED.gtf
 ```
-7. Obtain "Unique" Host and Pathogen Data (ARRAY JOB)
+## Obtain "Unique" Host and Pathogen Data (ARRAY JOB)
 > Necessary module(s): bamtools/intel/2.5.1, samtools/intel/1.11
 ```bash
 sbatch/extract_pcyno_reads.sbatch
 sbatch/extract_pcoat_reads.sbatch
 ```
-8. Obtain Read Count Matrix and Calculate Percent Parasitemia
+## Obtain Read Count Matrix and Calculate Percent Parasitemia
 > Necessary module(s): r/intel/4.0.4
 > Necessary R package(s): BiocManager, Rsubread
 ```bash
@@ -261,8 +262,9 @@ save.image("PlasCoat_exonfc.Rdata")
  > Total_Reads = sum(Macaque_Reads_Mapped, Plasmodium_Reads_Mapped)
   * Calculate Percent Parasitemia:
  > Percent Parasitemia = Plasmodium_Reads_Mapped / Total_Reads
-```
-9. Combine read count matrices for analyses
+
+## Calculate parasitemia proxies
+```R
 ### --> Combine macaque .Rdata files
 load("Mmul_exonfc.Rdata")
 Mmul_coatneyi = Mmul_exonfc$counts
@@ -273,8 +275,6 @@ load("MmulCyno_exonfc.Rdata")
 Mmul_cyno = MmulCyno_exonfc$counts 
 load("PlasCyno_exonfc.Rdata")
 Plas_cyno = PlasCyno_exonfc$counts
-
-### --> Calculate parasitemia proxies
 
 #Coatneyi
 #Load info about individuals
@@ -360,4 +360,46 @@ parasitemia_outler = parasitemia[!(parasitemia$Individual_ID %in% c("CF97_donor"
 parasitemia_NOoutlier = parasitemia[!(parasitemia$Individual_ID %in% c("RFa14", "RMe14", "CF97_donor")), ]
 
 save.image(file="exon/Parasitemia_calculation.Rdata")
+```
+## Combine read count matrices
+```R
+# load orthologs
+require(data.table)
+
+orthologs.coat = read.csv("orthologs_starting_with_coat.csv") #4465
+orthologs.cyno = read.csv("orthologs_starting_with_cyno.csv") #4509
+
+# Get rid of all rows that do not have 1 to 1 ortholog
+coat.1ortho = orthologs.coat[unlist(lapply(orthologs.coat$Input.Ortholog.s., nchar)) == 14,] #3927
+cyno.1ortho = orthologs.cyno[unlist(lapply(orthologs.cyno$Input.Ortholog.s., nchar)) == 11,] #3918
+
+# make sure they are in each other's table
+reciprocal.ortho = coat.1ortho[coat.1ortho$Input.Ortholog.s. %in% cyno.1ortho$Gene.ID,] #3747
+reciprocal.ortho = reciprocal.ortho[reciprocal.ortho$Gene.ID %in% coat.1ortho$Gene.ID,] #3747
+reciprocal.ortho = subset(reciprocal.ortho, select=c("Input.Ortholog.s.", "Gene.ID"))
+names(reciprocal.ortho)[names(reciprocal.ortho) == "Input.Ortholog.s."] <- "Coatneyi_genes"
+names(reciprocal.ortho)[names(reciprocal.ortho) == "Gene.ID"] <- "Cynomolgi_genes"
+
+# Combine read count matrices 
+library(dplyr)
+library(tidyr)
+
+# For plasmodium analysis
+Plas_coat_matrix = data.frame(t(Plas_coatneyi))
+Plas_coat_matrix$Coatneyi_genes = rownames(Plas_coat_matrix)
+Plas_coat_matrix = full_join(Plas_coat_matrix, reciprocal.ortho, by="Coatneyi_genes")
+Plas_coat_matrix = drop_na(Plas_coat_matrix)
+Plas_coat_matrix = Plas_coat_matrix[,-c(37)]
+
+Plas_cyno_matrix = data.frame(t(Plas_cyno))
+Plas_cyno_matrix$Cynomolgi_genes = rownames(Plas_cyno_matrix)
+Plas_cyno_matrix = full_join(Plas_cyno_matrix, reciprocal.ortho, by="Cynomolgi_genes")
+Plas_cyno_matrix = drop_na(Plas_cyno_matrix)
+Plas_cyno_matrix = Plas_cyno_matrix[,-c(31)]
+
+Plas_matrix = merge(Plas_coat_matrix, Plas_cyno_matrix, by="Coatneyi_genes")
+rownames(Plas_matrix) = Plas_matrix$Coatneyi_genes
+Plas_matrix = Plas_matrix[,-c(1)]
+
+save.image(file="exon/Ready_for_pathogen_DE.Rdata")
 ```
