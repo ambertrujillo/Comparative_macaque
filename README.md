@@ -64,5 +64,5 @@ cd ..
 sbatch/index_pcyno_genomes.sbatch
 
 # P. coatneyi and M. mulatta
-sbatch/index_pcoat_genomes
+sbatch/index_pcoat_genomes.sbatch
 ```
