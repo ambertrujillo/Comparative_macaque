@@ -162,19 +162,30 @@ BiocManager::install("Rsubread")
 
 library(Rsubread)
 
-bams = list.files(path = "results/mapped_reads/colobus", pattern = "*.bam$", full.names=TRUE)
-gtf.file = "genomes/combined.gtf"
-colobus.fc = featureCounts(bams, annot.ext=gtf.file,
-    GTF.featureType="gene",
-    isGTFAnnotationFile=TRUE,
-    isPairedEnd=FALSE,
-    nthreads=8,
-    allowMultiOverlap=FALSE)
+module load r/gcc/4.2.0
 
-save.image("colobus.fc.Rdata")
+R
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+# Macaque
+bams = list.files(path = "results/cynomolgi/mapped_reads/macaque", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/cynomolgi/pcyno_combined_FIXED.gtf"
+MmulCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
+    isGTFAnnotationFile=TRUE,
+    GTF.featureType = "exon",
+    isPairedEnd=TRUE,
+    nthreads=8,
+    allowMultiOverlap=TRUE)
+
+save.image("MmulCyno_exonfc.Rdata")
 ```
-  * As file is running, create percent_parasitemia table in excel (enter Colobus_Reads_Mapped):
- > Colobus_Reads_Mapped = "Successfully assigned alignments"
+  * As file is running, create percent_parasitemia table in excel (enter Macaque_Reads_Mapped):
+ > Macaque_Reads_Mapped = "Successfully assigned alignments"
  
   * Do same for "unique" pathogen data 
 ```R
@@ -184,21 +195,83 @@ BiocManager::install("Rsubread")
 
 library(Rsubread)
 
-bams = list.files(path = "edgeR_results/mapped_reads/hepatocystis", pattern = "*.bam$", full.names=TRUE)
-gtf.file = "genomes/combined.gtf"
-hepato.fc = featureCounts(bams, annot.ext=gtf.file,
-    GTF.featureType="gene",
+bams = list.files(path = "results/cynomolgi/mapped_reads/plasmodium", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/pcyno_combined_FIXED.gtf"
+PlasCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
     isGTFAnnotationFile=TRUE,
-    isPairedEnd=FALSE,
+    GTF.featureType = "exon",
+    isPairedEnd=TRUE,
     nthreads=8,
-    allowMultiOverlap=FALSE)
+    allowMultiOverlap=TRUE)
 
-save.image("hepato.fc.Rdata")
-```
+save.image("PlasCyno_exonfc.Rdata")```
+
   * As file is running, create percent_parasitemia table in excel (enter Hepatocystis_Reads_Mapped):
  > Plasmodium_Reads_Mapped = "Successfully assigned alignments"
  
   * Calculate Total_Reads:
- > Total_Reads = sum(Colobus_Reads_Mapped, Hepatocystis_Reads_Mapped)
+ > Total_Reads = sum(Macaque_Reads_Mapped, Plasmodium_Reads_Mapped)
   * Calculate Percent Parasitemia:
  > Percent Parasitemia = Hepatocystis_Reads_Mapped / Total_Reads
+ 
+  * _P. coatneyi_ and _M. mulatta_
+
+```R
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+module load r/gcc/4.2.0
+
+R
+
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+# Macaque
+bams = list.files(path = "results/coatneyi/mapped_reads/macaque", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/coatneyi/pcoat_combined_FIXED.gtf"
+MmulCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
+    isGTFAnnotationFile=TRUE,
+    GTF.featureType = "exon",
+    isPairedEnd=TRUE,
+    nthreads=8,
+    allowMultiOverlap=TRUE)
+
+save.image("exon/Mmul_exonfc.Rdata")
+```
+  * As file is running, create percent_parasitemia table in excel (enter Macaque_Reads_Mapped):
+ > Macaque_Reads_Mapped = "Successfully assigned alignments"
+ 
+  * Do same for "unique" pathogen data 
+```R
+if (!requireNamespace("BiocManager", quietly = TRUE))
+    install.packages("BiocManager")
+BiocManager::install("Rsubread")
+
+library(Rsubread)
+
+bams = list.files(path = "results/coatneyi/mapped_reads/plasmodium", pattern = "*.bam$", full.names=TRUE)
+gtf.file = "genomes/pcoat_combined_FIXED.gtf"
+PlasCyno_exonfc = featureCounts(bams, annot.ext=gtf.file,
+    isGTFAnnotationFile=TRUE,
+    GTF.featureType = "exon",
+    isPairedEnd=TRUE,
+    nthreads=8,
+    allowMultiOverlap=TRUE)
+
+save.image("exon/PlasCoat_exonfc.Rdata")
+```
+  * As file is running, create percent_parasitemia table in excel (enter Plasmodium_Reads_Mapped):
+ > Plasmodium_Reads_Mapped = "Successfully assigned alignments"
+ 
+  * Calculate Total_Reads:
+ > Total_Reads = sum(Macaque_Reads_Mapped, Plasmodium_Reads_Mapped)
+  * Calculate Percent Parasitemia:
+ > Percent Parasitemia = Plasmodium_Reads_Mapped / Total_Reads
+```
