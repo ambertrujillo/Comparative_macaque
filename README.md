@@ -698,5 +698,145 @@ write.table(sig.genes.dn.binary_coefSpecies,
             file=paste0("Species_specific_results/exon/binary_3/NoOUTmacaque_dn_Species", suffix=".txt"),
             row.names=FALSE, col.names=TRUE, quote=FALSE)
 ```
+3. Pathogen DE analysis
+```R
+# Drop outliers, individual that has no microscopy data for time point 3 (Fv13_3) transfusions
+Plas_matrix_DE <- Plas_matrix[,-65] # remove transfusion individual
+Plas_matrix_DE <- Plas_matrix_DE[,-c(39, 43, 48, 52, 56, 59, 63, 36, 41, 45, 50, 54, 57, 61)] # remove outliers
+parasitemia_general <- parasitemia_NOoutlier 
+
+# Create DGEList for inferred parasitemia 
+d0_plas <- DGEList(Plas_matrix_DE)
+
+# Calculate normalization factors for voom TTM normalization
+d0_plas <- calcNormFactors(d0_plas)
+dim(d0_plas)
+#3747   50
+
+# have at least min.count reads in a worthwhile number samples. based on design matrix
+group.species <- factor(parasitemia_general$Plas_species)
+design1 = model.matrix( ~ parasitemia_general$parasitemia_proxy + group.species + parasitemia_general$parasitemia_proxy:group.species)
+
+keep <- filterByExpr(d0_plas, design1)
+d_plas = d0_plas[keep, , keep.lib.sizes=FALSE]
+dim(d_plas)
+#2048   50
+
+# change sample and rownames (i.e., sample ids) in DGE list
+rownames(d_plas$samples) <- c("RCs131.coatneyi", "RTi131.coatneyi", "RUn131.coatneyi", "RWr131.coatneyi", "RZe131.coatneyi", "RCs132.coatneyi", "RTi132.coatneyi", "RUn132.coatneyi", "RWr132.coatneyi", "RZe132.coatneyi", "RCs133.coatneyi", "RTi133.coatneyi", "RUn133.coatneyi", "RWr133.coatneyi", "RZe133.coatneyi", "RCs134.coatneyi", "RTi134.coatneyi", "RUn134.coatneyi", "RWr134.coatneyi", "RZe134.coatneyi", "RCs135.coatneyi", "RTi135.coatneyi", "RUn135.coatneyi", "RWr135.coatneyi", "RZe135.coatneyi", "RCs136.coatneyi", "RTi136.coatneyi", "RUn136.coatneyi", "RWr136.coatneyi", "RZe136.coatneyi", "RCs137.coatneyi", "RTi137.coatneyi", "RUn137.coatneyi", "RWr137.coatneyi", "RZe137.coatneyi", "RFv131.cynomolgi", "RIc141.cynomolgi", "RSb141.cynomolgi", "RIc142.cynomolgi", "RSb142.cynomolgi", "RFv133.cynomolgi", "RIc143.cynomolgi", "RSb143.cynomolgi", "RIc144.cynomolgi", "RSb144.cynomolgi", "RIc145.cynomolgi", "RIc146.cynomolgi", "RSb146.cynomolgi", "RIc147.cynomolgi", "RSb147.cynomolgi")
+snames = colnames(d_plas$counts) <- c("RCs131.coatneyi", "RTi131.coatneyi", "RUn131.coatneyi", "RWr131.coatneyi", "RZe131.coatneyi", "RCs132.coatneyi", "RTi132.coatneyi", "RUn132.coatneyi", "RWr132.coatneyi", "RZe132.coatneyi", "RCs133.coatneyi", "RTi133.coatneyi", "RUn133.coatneyi", "RWr133.coatneyi", "RZe133.coatneyi", "RCs134.coatneyi", "RTi134.coatneyi", "RUn134.coatneyi", "RWr134.coatneyi", "RZe134.coatneyi", "RCs135.coatneyi", "RTi135.coatneyi", "RUn135.coatneyi", "RWr135.coatneyi", "RZe135.coatneyi", "RCs136.coatneyi", "RTi136.coatneyi", "RUn136.coatneyi", "RWr136.coatneyi", "RZe136.coatneyi", "RCs137.coatneyi", "RTi137.coatneyi", "RUn137.coatneyi", "RWr137.coatneyi", "RZe137.coatneyi", "RFv131.cynomolgi", "RIc141.cynomolgi", "RSb141.cynomolgi", "RIc142.cynomolgi", "RSb142.cynomolgi", "RFv133.cynomolgi", "RIc143.cynomolgi", "RSb143.cynomolgi", "RIc144.cynomolgi", "RSb144.cynomolgi", "RIc145.cynomolgi", "RIc146.cynomolgi", "RSb146.cynomolgi", "RIc147.cynomolgi", "RSb147.cynomolgi")
+
+# Get ID and time variables to create a group 
+sample_ID <- substr(snames, 1, nchar(snames) - 1) 
+time <- substr(snames, nchar(snames), nchar(snames))
+individual <- substr(snames, 1, 5)
+#group <- interaction(sample_ID, time)
+#group
+
+# MDS plot
+#by time
+plotMDS(d_plas, col = as.numeric(time))
+#by individual
+plotMDS(d_plas, col = as.numeric(individual))
+
+# Running limma-voom for Individual being a random effect since there are more than one data points per individual (http://bioconductor.statistik.tu-dortmund.de/packages/3.7/bioc/vignettes/variancePartition/inst/doc/dream.html)
+# Try to include sample_ID as block for each model
+
+# first model
+vobj_tmp = voom(d_plas, design1, plot=TRUE)
+dim(vobj_tmp$E)
+head(vobj_tmp$E)
+substr(colnames(vobj_tmp$E),1,5) == parasitemia_general$Individual_ID
+dupcor <- duplicateCorrelation(vobj_tmp, design1, block=parasitemia_general$Individual_ID)
+
+# run voom considering the duplicateCorrelation results
+# in order to compute more accurate precision weights
+# Otherwise, use the results from the first voom run
+vobj_tmp = voom(d_plas, design1, plot=TRUE, block=parasitemia_general$Individual_ID, correlation=dupcor$consensus)
+
+# Estimate linear mixed model with a single variance component
+# Fit the model for each gene, 
+dupcor <- duplicateCorrelation(vobj_tmp, design1, block=parasitemia_general$Individual_ID)
+
+# But this step uses only the genome-wide average for the random effect
+fitDupCor <- lmFit(vobj_tmp, design1, block=parasitemia_general$Individual_ID, correlation=dupcor$consensus)
+
+# Specify for each coefficient of interest
+tmp.plas.1 = contrasts.fit(fitDupCor, coef = "parasitemia_general$parasitemia_proxy")
+tmp.plas.2 = contrasts.fit(fitDupCor, coef = "parasitemia_general$parasitemia_proxy:group.speciescynomolgi")
+tmp.plas.3 = contrasts.fit(fitDupCor, coef = "group.speciescynomolgi")
+
+# Fit Empirical Bayes for moderated t-statistics
+fitDupCor.plas.1 <- eBayes(tmp.plas.1)
+fitDupCor.plas.2 <- eBayes(tmp.plas.2)
+fitDupCor.plas.3 <- eBayes(tmp.plas.3)
+
+top.table.species_coefParasitemia <- topTable(fitDupCor.plas.1, coef="parasitemia_general$parasitemia_proxy", adjust.method="BH", sort.by = "P", n = Inf) # sort by adj. pval
+top.table.species_coefParasitemia$GeneID = rownames(top.table.species_coefParasitemia)
+
+top.table.species_coefParasitemiaSpecies <- topTable(fitDupCor.plas.2, coef="parasitemia_general$parasitemia_proxy:group.speciescynomolgi", adjust.method="BH", sort.by="p", n = Inf)
+top.table.species_coefParasitemiaSpecies$GeneID = rownames(top.table.species_coefParasitemiaSpecies)
+
+top.table.species_coefSpecies <- topTable(fitDupCor.plas.3, coef="group.speciescynomolgi", adjust.method="BH", sort.by="p", n = Inf)
+top.table.species_coefSpecies$GeneID = rownames(top.table.species_coefSpecies)
+
+# Write results tables
+all.genes.species_coefParasitemia = subset(top.table.species_coefParasitemia, adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(all.genes.species_coefParasitemia) #151
+
+all.genes.species_coefParsitemiaSpecies = subset(top.table.species_coefParasitemiaSpecies, adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(all.genes.species_coefParsitemiaSpecies) #20
+
+all.genes.species_coefSpecies = subset(top.table.species_coefSpecies, adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(all.genes.species_coefSpecies) #661
+
+write.table(all.genes.species_coefParasitemia,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Parasitemia/NoOUTplas_sig_genes_Parasitemia", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(all.genes.species_coefParsitemiaSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_ParasitemiaSpecies/NoOUTplas_sig_genes_ParasitemiaSpecies", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(all.genes.species_coefSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Species/NoOUTplas_sig_genes_Species", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+
+sig.genes.up.species_coefParasitemia = subset(top.table.species_coefParasitemia, logFC > 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.up.species_coefParasitemia) #0
+
+sig.genes.up.species_coefParasitemiaSpecies = subset(top.table.species_coefParasitemiaSpecies, logFC > 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.up.species_coefParasitemiaSpecies) #0
+
+sig.genes.up.species_coefSpecies = subset(top.table.species_coefSpecies, logFC > 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.up.species_coefSpecies) #351
+
+write.table(sig.genes.up.species_coefParasitemia,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Parasitemia/NoOUTplas_upreg_Parasitemia", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(sig.genes.up.species_coefParasitemiaSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_ParasitemiaSpecies/NoOUTplas_upreg_ParasitemiaSpecies", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(sig.genes.up.species_coefSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Species/NoOUTplas_upreg_Species", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+
+sig.genes.dn.species_coefParasitemia = subset(top.table.species_coefParasitemia, logFC < 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.dn.species_coefParasitemia) #151
+
+sig.genes.dn.species_coefParasitemiaSpecies = subset(top.table.species_coefParasitemiaSpecies, logFC < 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.dn.species_coefParasitemiaSpecies) #20
+
+sig.genes.dn.species_coefSpecies = subset(top.table.species_coefSpecies, logFC < 0 & adj.P.Val < 0.05, select=c(GeneID, logFC, adj.P.Val))
+dim(sig.genes.dn.species_coefSpecies) #310
+
+write.table(sig.genes.dn.species_coefParasitemia,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Parasitemia/NoOUTplas_dn_Parasitemia", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(sig.genes.dn.species_coefParasitemiaSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_ParasitemiaSpecies/NoOUTplas_dn_ParasitemiaSpecies", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+write.table(sig.genes.dn.species_coefSpecies,
+            file=paste0("Species_specific_results/exon/traditional_1/coef_Species/NoOUTplas_dn_Species", suffix=".txt"),
+            row.names=FALSE, col.names=TRUE, quote=FALSE)
+```
 
 
